@@ -1,0 +1,186 @@
+﻿@model Ai_Chatbot.Models.AIResponse
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI ChatBot</title>
+    <style>
+        /* General reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #ddd;
+        }
+
+        /* Chat container styling */
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            height: 80vh;
+            background-color: #2b2b2b;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Header styling */
+        .chat-header {
+            padding: 15px;
+            background-color: #151515;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #333;
+        }
+
+        /* Messages area styling */
+        .chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Individual message styling */
+        .message {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        /* User message alignment */
+        .user-message {
+            background-color: #444;
+            align-self: flex-end;
+            text-align: left;
+        }
+
+        /* Bot message alignment */
+        .bot-message {
+            background-color: #3a3a3a;
+            align-self: flex-start;
+            text-align: left;
+        }
+
+        /* Chat input styling */
+        .chat-input {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-top: 1px solid #333;
+            background-color: #1a1a1a;
+        }
+
+            /* Input field styling */
+            .chat-input textarea {
+                flex-grow: 1;
+                padding: 10px;
+                border: none;
+                border-radius: 20px;
+                background-color: #333;
+                color: #ddd;
+                resize: none;
+                overflow: auto;
+                max-height: 60px;
+            }
+
+            /* Send button styling */
+            .chat-input button {
+                background-color: #333;
+                color: #bbb;
+                border: none;
+                border-radius: 20px;
+                padding: 10px 15px;
+                margin-left: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+                .chat-input button:hover {
+                    background-color: #555;
+                }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            AI-ChatBot
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">Hello! How may I help you today?</div>
+
+            @{
+                var list = ViewBag.Mylist as List<AIResponse>;
+            }
+            @if(list != null)
+            {
+                foreach(var item in list)
+                {
+                    <div class="message user-message">@item.Message</div>
+                    <div class="message bot-message">@item.Result</div>
+                }
+            }
+            @* Call sendMessage function with both messages if available *@
+            @*if (Model != null && !string.IsNullOrEmpty(Model.Message) && !string.IsNullOrEmpty(Model.Result))
+            {
+                <div class="message user-message">@Model.Message</div>
+                <div class="message bot-message">@Model.Result</div>
+            }*@
+        </div>
+
+        @* BeginForm to submit user input to AIController's Process action *@
+        @using (Html.BeginForm("ProcessCall", "AI", FormMethod.Post))
+        {
+            <div class="chat-input">
+                @Html.TextAreaFor(model => model.Message, new { @id = "userInput", placeholder = "Type a message...", rows = "1", @class = "input-field" })
+                <button type="submit">Send</button>
+            </div>
+        }
+    </div>
+
+    <script>
+        function sendMessage(message, result) {
+            const chatMessages = document.getElementById('chatMessages');
+
+            // Append user message
+            if (message.trim() !== '') {
+                const userMessage = document.createElement('div');
+                userMessage.classList.add('message', 'user-message');
+                userMessage.textContent = message;
+                chatMessages.appendChild(userMessage);
+            }
+
+            // Append bot response
+            if (result.trim() !== '') {
+                const botMessage = document.createElement('div');
+                botMessage.classList.add('message', 'bot-message');
+                botMessage.textContent = result;
+                chatMessages.appendChild(botMessage);
+            }
+
+            // Scroll to the bottom of chat messages
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+
+</body>
+</html>
